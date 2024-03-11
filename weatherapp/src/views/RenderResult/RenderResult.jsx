@@ -1,70 +1,67 @@
-import { useEffect, useState } from "react";
-import { WeatherResult } from "../../Components/WeatherResult/WeatherResult";
+import { useState } from "react";
+import { WeatherResult } from "../../components/WeatherResult/WeatherResult";
 import { getWeather } from "../../services/getWeather";
-// import { Search } from "../../Components/Search/Search";
 import search from "../../assets/img/search.png";
-import {
-  IconMapPin,
-  IconPropeller,
-  IconDropletHalf2,
-} from "@tabler/icons-react";
+import searchInitIcon from "../../assets/searchIcon.svg";
 
 export const RenderResult = () => {
   const [weatherCountry, setWeatherCountry] = useState(null);
   const [country, setCountry] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   weatherResult().then((data) => setWeatherCountry(data));
-  // }, []);
 
-  function handleSearch(e) {
+  const handleSearch = (e) => {
     e.preventDefault();
-    const { name, value } = e.target;
-    setCountry({ [name]: value });
-    // console.log({ [name]: value });
+    setCountry(e.target.value);
   }
 
-  async function handleWeather() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleWeather();
+  }
+
+  const handleWeather = async () => {
     try {
       setIsLoading(true);
-      const countryResult = await getWeather(country);
-      setWeatherCountry(countryResult);
+
+      const weather = await getWeather(country);
+      setWeatherCountry(weather);
+    
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   }
-  console.log(country);
+
+ 
+
   return (
     <div
       className="bg-blue-100 rounded-lg min-w-[300px] h-5/6 m-auto 
     md:max-w-[500px] md:min-w-[400px] md:rounded-sm md:min-h-[600px] 
-    lg:max-w-[50%] lg:min-w-[400px] lg:rounded-md"
+    lg:max-w-[50%] lg:min-w-[400px] lg:rounded-md flex flex-col items-center"
     >
-      <form className="flex justify-around">
+      <form className="flex gap-3 justify-around" onSubmit={handleSubmit}>
         <input
           type="text"
           name="search"
           className="p-3 rounded-2xl shadow-xl mt-3"
+          value={country}
           onChange={handleSearch}
         />
-        <button className="shadow-xl bg-transparent rounded-md ">
-          {" "}
+        <button type="submit" className="bg-transparent rounded-full border-2 px-3">
           <img src={search} alt="" className="w-[30px] h-[30px]" />
         </button>
       </form>
 
-      {weatherCountry ? (
-        isLoading ? (
-          <Loader />
-        ) : (
-          <WeatherResult weatherCountry={weatherCountry} />
-        )
-      ) : (
-        "Wealcome"
-      )}
+      {
+        weatherCountry
+          ? isLoading
+            ? <Loader />
+            : <WeatherResult weatherCountry={weatherCountry} />
+          : <img className="flex mt-40 w-60" src={searchInitIcon} alt="welcome" />
+      }
     </div>
   );
 };
